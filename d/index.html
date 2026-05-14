@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>D-Gallery</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- GİRİŞ/KAYIT EKRANI -->
+    <div id="auth-view" class="view active">
+        <div class="auth-container">
+            <h1 class="logo-large">D</h1>
+            <form id="login-form">
+                <h2>Giriş Yap</h2>
+                <input type="text" id="login-username" placeholder="Kullanıcı Adı" value="Umut" required>
+                <input type="password" id="login-password" placeholder="Şifre" value="1234" required>
+                <button type="submit" class="btn-primary">Giriş Yap</button>
+                <p>Hesabın yok mu? <span class="link" id="go-to-register">Hesap Oluştur</span></p>
+            </form>
+            <form id="register-form" class="hidden">
+                <h2>Kayıt Ol</h2>
+                <input type="text" id="reg-username" placeholder="Kullanıcı Adı" required>
+                <input type="password" id="reg-password" placeholder="Şifre" required>
+                <select id="reg-gender">
+                    <option value="Belirtilmedi">Cinsiyet Seçin</option>
+                    <option value="Erkek">Erkek</option>
+                    <option value="Kadın">Kadın</option>
+                </select>
+                <button type="submit" class="btn-primary">Kayıt Ol</button>
+                <p>Zaten hesabın var mı? <span class="link" id="go-to-login">Giriş Yap</span></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- ANA UYGULAMA -->
+    <div id="app-view" class="view hidden">
+        <nav class="navbar">
+            <div class="nav-left">
+                <button id="open-menu-btn" class="menu-btn"><i class="fas fa-bars"></i></button>
+            </div>
+            <div class="nav-center">
+                <input type="text" id="search-input" placeholder="Resim adı veya türü ara...">
+            </div>
+            <div class="nav-right">
+                <button id="nav-profile-btn" class="profile-btn">
+                    <img id="nav-avatar-img" class="nav-avatar hidden" src="" alt="Avatar">
+                    <i id="nav-avatar-icon" class="fas fa-user-circle"></i> 
+                    <span id="nav-username">Profil</span>
+                </button>
+                <button id="logout-btn" class="logout-btn"><i class="fas fa-sign-out-alt"></i></button>
+            </div>
+        </nav>
+
+        <!-- YAN MENÜ (SOLDAN) -->
+        <div id="sidebar-overlay" class="sidebar-overlay hidden"></div>
+        <div id="left-sidebar" class="sidebar">
+            <div class="sidebar-header">
+                <h2>Menü</h2>
+                <button id="close-sidebar-btn" class="close-btn"><i class="fas fa-times"></i></button>
+            </div>
+            <ul class="sidebar-menu">
+                <li id="menu-home"><i class="fas fa-home"></i> Ana Sayfa</li>
+                <li id="menu-following"><i class="fas fa-user-friends"></i> Takip Edilenler</li>
+                <hr>
+                <li id="menu-myposts"><i class="fas fa-images"></i> Paylaşımlarım</li>
+                <li id="menu-createpost" class="highlight-menu"><i class="fas fa-plus-square"></i> Paylaşım Yap</li>
+                <hr>
+                <li id="menu-settings"><i class="fas fa-cog"></i> Ayarlar</li>
+            </ul>
+        </div>
+
+        <!-- Ana Akış -->
+        <main id="feed-section" class="section active">
+            <h2 id="feed-title" class="feed-title">Ana Sayfa</h2>
+            <div class="masonry-grid" id="image-grid"></div>
+        </main>
+
+        <!-- Profil Sayfası -->
+        <main id="profile-section" class="section hidden">
+            <div class="profile-header">
+                <div class="profile-avatar-container" id="profile-avatar-wrapper">
+                    <img id="profile-avatar-img" src="" alt="Avatar" class="profile-avatar-img hidden">
+                    <div class="profile-avatar" id="profile-avatar-icon"><i class="fas fa-user"></i></div>
+                    <div class="edit-avatar-overlay" id="edit-avatar-layer"><i class="fas fa-camera"></i></div>
+                    <input type="file" id="avatar-upload" accept="image/png, image/jpeg, image/gif, image/webp" class="hidden">
+                </div>
+                
+                <h2 id="profile-username">Kullanıcı Adı</h2>
+                
+                <!-- YENİ: Tıklanabilir Takip İstatistikleri -->
+                <div class="profile-stats">
+                    <span class="stat-click" id="btn-show-followers"><strong id="stat-followers">0</strong> Takipçi</span>
+                    <span class="stat-click" id="btn-show-following"><strong id="stat-following">0</strong> Takip Edilen</span>
+                </div>
+                
+                <button id="follow-btn" class="btn-primary follow-btn hidden">Takip Et</button>
+            </div>
+            
+            <div class="profile-tabs">
+                <button class="tab-btn active" data-target="posts">Paylaşımlar</button>
+                <button class="tab-btn" id="tab-likes" data-target="likes">Beğenilenler</button>
+                <button class="tab-btn" id="tab-saves" data-target="saves">Kaydedilenler</button>
+                <button class="tab-btn" id="tab-comments" data-target="comments">Yorumlar</button>
+            </div>
+
+            <div id="profile-content-area" class="profile-content-area">
+                <div id="profile-empty-state" class="empty-state hidden">
+                    <p id="empty-state-text">Burada henüz bir şey yok.</p>
+                </div>
+                
+                <div class="masonry-grid" id="profile-grid"></div>
+                <div id="profile-comments-list" class="profile-comments-list hidden"></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- YENİ: KULLANICI LİSTESİ MODALI (Takipçi/Takip Edilen) -->
+    <div id="list-modal" class="modal hidden">
+        <div class="modal-close" id="close-list-modal"><i class="fas fa-times"></i></div>
+        <div class="list-container">
+            <h2 id="list-modal-title">Liste</h2>
+            <div id="list-modal-content" class="list-modal-content">
+                <!-- Kullanıcılar buraya JS ile yüklenecek -->
+            </div>
+        </div>
+    </div>
+
+    <!-- RESİM DETAY PANELİ -->
+    <div id="image-modal" class="modal hidden">
+        <div class="modal-close" id="close-modal"><i class="fas fa-times"></i></div>
+        <div class="modal-content">
+            <div class="modal-left">
+                <div class="modal-actions-layer">
+                    <div class="uploader-info" id="modal-uploader-click" title="Profile Git">
+                        <img id="modal-uploader-avatar" src="" alt="Avatar" onerror="this.src='https://via.placeholder.com/150/2c2c2c/FFFFFF?text=User'">
+                        <span id="modal-uploader-name">Kullanıcı</span>
+                    </div>
+                    <div class="action-buttons" id="modal-action-buttons">
+                        <button id="like-btn" class="action-btn"><i class="fas fa-heart"></i> Beğen</button>
+                        <button id="save-btn" class="action-btn"><i class="fas fa-bookmark"></i> Kaydet</button>
+                        <button id="delete-btn" class="action-btn btn-danger hidden"><i class="fas fa-trash"></i> Sil</button>
+                    </div>
+                </div>
+                <img id="modal-image" src="" alt="Resim Detayı">
+            </div>
+            <div class="modal-right">
+                <h3 id="modal-image-title">Başlık</h3>
+                <p class="image-tags" id="modal-image-type">#tür</p>
+                <hr>
+                <div class="comments-section" id="modal-comments-list"></div>
+                <div class="add-comment">
+                    <input type="text" id="new-comment-input" placeholder="Yorum ekle...">
+                    <button id="submit-comment-btn"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- YENİ PAYLAŞIM EKRANI (Modal) -->
+    <div id="upload-modal" class="modal hidden">
+        <div class="modal-close" id="close-upload-modal"><i class="fas fa-times"></i></div>
+        <div class="upload-container">
+            <h2>Yeni Fotoğraf Paylaş</h2>
+            <input type="file" id="upload-file" accept="image/png, image/jpeg, image/gif, image/webp">
+            <input type="text" id="upload-title" placeholder="Resmin Başlığı" required>
+            <input type="text" id="upload-type" placeholder="Tür / Etiket (örn: doğa, fantastik)" required>
+            <p style="font-size: 12px; color: var(--text-muted); margin-top: -5px;">* Büyük resimler otomatik sıkıştırılır. GIF'ler orijinal kalır.</p>
+            <button id="submit-upload-btn" class="btn-primary">Paylaş</button>
+        </div>
+    </div>
+
+    <!-- AYARLAR EKRANI (Modal) -->
+    <div id="settings-modal" class="modal hidden">
+        <div class="modal-close" id="close-settings-modal"><i class="fas fa-times"></i></div>
+        <div class="settings-container">
+            <h2>Ayarlar</h2>
+            
+            <div class="setting-group">
+                <h3>Görünüm</h3>
+                <label class="toggle-label">
+                    <span>Aydınlık Tema (Light Mode)</span>
+                    <input type="checkbox" id="setting-theme">
+                </label>
+            </div>
+
+            <div class="setting-group">
+                <h3>Profil Gizliliği</h3>
+                <label class="toggle-label">
+                    <span>Beğendiklerimi Başkaları Görebilsin</span>
+                    <input type="checkbox" id="setting-privacy-likes">
+                </label>
+                <label class="toggle-label">
+                    <span>Kaydettiklerimi Başkaları Görebilsin</span>
+                    <input type="checkbox" id="setting-privacy-saves">
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
